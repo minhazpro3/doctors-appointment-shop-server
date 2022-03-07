@@ -26,6 +26,26 @@ async function run() {
     const doctors = database.collection("doctors")
     console.log("connected database");
 
+
+
+    // post patients collections
+    app.post("/allPatients", async (req,res)=>{
+      const patientsCollection = req.body;
+      const result = await patients.insertOne(patientsCollection)
+      res.send(result)
+    })
+
+    // get admin patients 
+    app.get("/getAdminPatients", async (req,res)=>{
+      const result = await patients.find({}).toArray()
+      res.send(result)
+    })
+
+
+
+
+
+
   } finally {
     // await client.close();
   }
