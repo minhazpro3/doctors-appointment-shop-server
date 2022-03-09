@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const ObjectId = require('mongodb').ObjectId;
 app.use(express.json())
 const cors = require('cors');
 const { MongoClient, ServerApiVersion } = require('mongodb');
@@ -40,6 +41,18 @@ async function run() {
       const result = await patients.find({}).toArray()
       res.send(result)
     })
+
+
+    
+
+    // delete patient
+    app.delete('/deleteMySerial/:id', async (req,res)=>{
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+      const result = await patients.deleteOne(query);
+      res.send(result);
+  })
+
 
 
 
