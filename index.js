@@ -74,7 +74,58 @@ async function run() {
       res.send(result);
     });
 
+
+    // get products
+    app.get("/getProducts", async (req,res)=>{
+      const result = await allProducts.find({}).toArray()
+      res.send(result)
+    })
+
+
+  // add new doctor
+  app.post("/addDoctor", async (req, res) => {
+    const name = req.body.name;
+    const email = req.body.email;
+    const jobTittle = req.body.jobTittle;
+    const age = req.body.age;
+    const address = req.body.address;
+    const phone = req.body.phone;
+    const picture = req.files.image;
+    const pictureData = picture.data;
+    const encodedPicture = pictureData.toString("base64");
+    const imageBuffer = Buffer.from(encodedPicture, "base64");
+    const doctor = {
+      name,
+      email,
+      jobTittle,
+      age,
+      address,
+      phone,
+      image: imageBuffer,
+    };
+    const result = await doctors.insertOne(doctor);
+    res.send(result);
+  });
+
+
+  // get doctors 
+  app.get("/getDoctors", async (req,res)=>{
+    const result = await doctors.find({}).toArray()
+    res.send(result)
+  })
+
+
+  // get single doctor
+  app.get('/singleDoctor/:id', async (req,res)=>{
+    const id = req.params.id;
+    const query = {_id: ObjectId(id)}
+    const result = await doctors.findOne(query)
+    res.send(result)
     
+})
+
+    
+
 
   } finally {
     // await client.close();
