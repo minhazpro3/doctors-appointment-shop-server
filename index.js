@@ -28,19 +28,27 @@ async function run() {
     console.log("connected database");
 
     // post patients collections
-    app.post("/allPatients", async (req, res) => {
+    app.post("/postAllPatients", async (req, res) => {
       const patientsCollection = req.body;
       const result = await patients.insertOne(patientsCollection);
       res.send(result);
     });
 
-    // get admin patients
-    app.get("/getAdminPatients", async (req, res) => {
-      const result = await patients.find({}).toArray();
-      res.send(result);
-    });
+    // your bookings
+    app.get("/yourBookings/:email", async (req,res)=>{
+      const query = {email: req.params.email}
+      const result = await patients.find(query).toArray()
+      res.send(result)
+    })
 
-    // delete patient
+    // get all bookings
+    app.get("/allBookings", async (req,res)=>{
+      const result = await patients.find({}).toArray()
+      res.send(result)
+    })
+   
+
+    // delete my serial
     app.delete("/deleteMySerial/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -123,6 +131,15 @@ async function run() {
     res.send(result)
     
 })
+
+  // delete patient
+app.delete("/deletePatient/:id", async (req, res) => {
+  const id = req.params.id;
+  const query = { _id: ObjectId(id) };
+  const result = await patients.deleteOne(query);
+  res.send(result);
+  
+});
 
     
 
