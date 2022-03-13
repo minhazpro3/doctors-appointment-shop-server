@@ -141,6 +141,22 @@ app.delete("/deletePatient/:id", async (req, res) => {
   
 });
 
+
+//  update happy patients
+app.put('/updatePatient/:id', async (req,res)=>{
+  const id = req.params.id;
+  const updateInfo = req.body;
+  console.log(updateInfo)
+  const query = {_id: ObjectId(id)}
+  const result = await patients.updateOne(query,{
+      $set: {
+          status:updateInfo.status
+      }
+  })
+  
+  res.send(result)
+})
+
     
 
 
