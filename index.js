@@ -57,7 +57,7 @@ async function run() {
     });
 
 
-    // add products
+    // add  products
     app.post("/addProduct", async (req, res) => {
       const name = req.body.name;
       const rating = req.body.rating;
@@ -90,7 +90,7 @@ async function run() {
     })
 
 
-  // add new doctor
+  // add a new doctor
   app.post("/addDoctor", async (req, res) => {
     const name = req.body.name;
     const email = req.body.email;
