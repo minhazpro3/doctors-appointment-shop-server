@@ -88,6 +88,16 @@ async function run() {
       const result = await allProducts.find({}).toArray()
       res.send(result)
     })
+    
+// delete products
+    app.delete("/deleteProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await allProducts.deleteOne(query);
+      console.log(result)
+      res.send(result);
+      
+    });
 
 
   // add a new doctor
