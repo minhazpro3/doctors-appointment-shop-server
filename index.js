@@ -35,18 +35,17 @@ async function run() {
     });
 
     // your bookings
-    app.get("/yourBookings/:email", async (req,res)=>{
-      const query = {email: req.params.email}
-      const result = await patients.find(query).toArray()
-      res.send(result)
-    })
+    app.get("/yourBookings/:email", async (req, res) => {
+      const query = { email: req.params.email };
+      const result = await patients.find(query).toArray();
+      res.send(result);
+    });
 
     // get all bookings
-    app.get("/allBookings", async (req,res)=>{
-      const result = await patients.find({}).toArray()
-      res.send(result)
-    })
-   
+    app.get("/allBookings", async (req, res) => {
+      const result = await patients.find({}).toArray();
+      res.send(result);
+    });
 
     // delete my serial
     app.delete("/deleteMySerial/:id", async (req, res) => {
@@ -55,7 +54,6 @@ async function run() {
       const result = await patients.deleteOne(query);
       res.send(result);
     });
-
 
     // add  products
     app.post("/addProduct", async (req, res) => {
@@ -82,94 +80,128 @@ async function run() {
       res.send(result);
     });
 
-
     // get products
-    app.get("/getProducts", async (req,res)=>{
-      const result = await allProducts.find({}).toArray()
-      res.send(result)
-    })
-    
-// delete products
+    app.get("/getProductCart", async (req, res) => {
+      const result = await allProducts.find({}).toArray();
+      res.send(result);
+    });
+
+    //  get product with pagination
+    app.get("/getProducts", async (req, res) => {
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const counts = await allProducts.count();
+
+      if (page) {
+        product = await allProducts
+          .find({})
+          .skip(page * size)
+          .limit(size)
+          .toArray();
+      } else {
+        product = await allProducts.find({}).limit(size).toArray();
+      }
+      res.send({ product, counts });
+    });
+
+    // find products
+    app.get("/findProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await allProducts.findOne(query);
+      res.send(result);
+    });
+
+    //  update Product
+    app.put("/updateProduct/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      console.log(updateInfo);
+      const query = { _id: ObjectId(id) };
+      const result = await allProducts.updateOne(query, {
+        $set: {
+          name: updateInfo.name,
+          description: updateInfo.description,
+          discount: updateInfo.discount,
+          discountPrice: updateInfo.discountPrice,
+          price: updateInfo.price,
+          rating: updateInfo.rating,
+        },
+      });
+
+      res.send(result);
+    });
+
+    // delete products
     app.delete("/deleteProduct/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await allProducts.deleteOne(query);
-      console.log(result)
+      console.log(result);
       res.send(result);
-      
     });
 
+    // add a new doctor
+    app.post("/addDoctor", async (req, res) => {
+      const name = req.body.name;
+      const email = req.body.email;
+      const jobTittle = req.body.jobTittle;
+      const age = req.body.age;
+      const address = req.body.address;
+      const phone = req.body.phone;
+      const picture = req.files.image;
+      const pictureData = picture.data;
+      const encodedPicture = pictureData.toString("base64");
+      const imageBuffer = Buffer.from(encodedPicture, "base64");
+      const doctor = {
+        name,
+        email,
+        jobTittle,
+        age,
+        address,
+        phone,
+        image: imageBuffer,
+      };
+      const result = await doctors.insertOne(doctor);
+      res.send(result);
+    });
 
-  // add a new doctor
-  app.post("/addDoctor", async (req, res) => {
-    const name = req.body.name;
-    const email = req.body.email;
-    const jobTittle = req.body.jobTittle;
-    const age = req.body.age;
-    const address = req.body.address;
-    const phone = req.body.phone;
-    const picture = req.files.image;
-    const pictureData = picture.data;
-    const encodedPicture = pictureData.toString("base64");
-    const imageBuffer = Buffer.from(encodedPicture, "base64");
-    const doctor = {
-      name,
-      email,
-      jobTittle,
-      age,
-      address,
-      phone,
-      image: imageBuffer,
-    };
-    const result = await doctors.insertOne(doctor);
-    res.send(result);
-  });
+    // get doctors
+    app.get("/getDoctors", async (req, res) => {
+      const result = await doctors.find({}).toArray();
+      res.send(result);
+    });
 
+    // get single doctor
+    app.get("/singleDoctor/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await doctors.findOne(query);
+      res.send(result);
+    });
 
-  // get doctors 
-  app.get("/getDoctors", async (req,res)=>{
-    const result = await doctors.find({}).toArray()
-    res.send(result)
-  })
+    // delete patient
+    app.delete("/deletePatient/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await patients.deleteOne(query);
+      res.send(result);
+    });
 
+    //  update happy patients
+    app.put("/updatePatient/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      console.log(updateInfo);
+      const query = { _id: ObjectId(id) };
+      const result = await patients.updateOne(query, {
+        $set: {
+          status: updateInfo.status,
+        },
+      });
 
-  // get single doctor
-  app.get('/singleDoctor/:id', async (req,res)=>{
-    const id = req.params.id;
-    const query = {_id: ObjectId(id)}
-    const result = await doctors.findOne(query)
-    res.send(result)
-    
-})
-
-  // delete patient
-app.delete("/deletePatient/:id", async (req, res) => {
-  const id = req.params.id;
-  const query = { _id: ObjectId(id) };
-  const result = await patients.deleteOne(query);
-  res.send(result);
-  
-});
-
-
-//  update happy patients
-app.put('/updatePatient/:id', async (req,res)=>{
-  const id = req.params.id;
-  const updateInfo = req.body;
-  console.log(updateInfo)
-  const query = {_id: ObjectId(id)}
-  const result = await patients.updateOne(query,{
-      $set: {
-          status:updateInfo.status
-      }
-  })
-  
-  res.send(result)
-})
-
-    
-
-
+      res.send(result);
+    });
   } finally {
     // await client.close();
   }
