@@ -25,6 +25,8 @@ async function run() {
     const patients = database.collection("patients");
     const doctors = database.collection("doctors");
     const allProducts = database.collection("allProducts");
+    const orderCart = database.collection("orderCart");
+    const saveUsers = database.collection("saveUsers");
     console.log("connected database");
 
     // post patients collections
@@ -202,6 +204,63 @@ async function run() {
 
       res.send(result);
     });
+
+
+    // save users
+    app.post("/saveUsers", async (req,res)=>{
+      const user =  req.body;
+      const result = await saveUsers.insertOne(user)
+      res.json(result)
+    })
+
+
+    // make admin
+    app.put("/madeAdmin", async (req,res)=>{
+      const filter = {email: req.body.email}
+      const result = await saveUsers.find(filter).toArray()
+      if(result){
+        const updateUser = await saveUsers.updateOne(filter,{
+          $set:{
+            role:"admin"
+          }
+        })
+        res.json(updateUser)
+      }
+
+      
+    })
+
+
+
+
+       // save cart info
+    //    app.post('/cartSave', async (req, res) => {
+    //       const query = req.body
+           
+    //        if(query.quantity===0){
+    //           result = await orderCart.insertOne(query)
+    //        }
+    //        else  {
+    //         const filter = req.body.id
+    //         const increment= query.quantity + 1
+    //         const updateDoc = { $set: { quantity:increment.quantity } }
+    //         const option = { upsert: true }
+    //        result1 = await orderCart.updateOne(filter, updateDoc, option);
+    //        }
+           
+    //         res.json({result,result1});
+             
+     
+        
+        
+    // })
+
+
+
+
+
+
+
   } finally {
     // await client.close();
   }
