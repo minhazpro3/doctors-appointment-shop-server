@@ -232,8 +232,18 @@ async function run() {
 
 
 
+    // check admin
+    app.get("/checkAdmin/:email", async (req,res)=>{
+      const email = {email: req.params.email}
+      console.log(email);
+      const result = await saveUsers.find(email).toArray()
+      res.json(result)
+    })
 
-       // save cart info
+
+
+
+       // save cart info details
     //    app.post('/cartSave', async (req, res) => {
     //       const query = req.body
            
@@ -252,6 +262,7 @@ async function run() {
              
      
         
+
         
     // })
 
