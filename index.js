@@ -151,10 +151,7 @@ async function run() {
       const age = req.body.age;
       const address = req.body.address;
       const phone = req.body.phone;
-      const picture = req.files.image;
-      const pictureData = picture.data;
-      const encodedPicture = pictureData.toString("base64");
-      const imageBuffer = Buffer.from(encodedPicture, "base64");
+      const img = req.body.image;
       const doctor = {
         name,
         email,
@@ -162,7 +159,7 @@ async function run() {
         age,
         address,
         phone,
-        image: imageBuffer,
+        img,
       };
       const result = await doctors.insertOne(doctor);
       res.send(result);
@@ -205,48 +202,46 @@ async function run() {
       res.send(result);
     });
 
-
     // save users
-    app.post("/saveUsers", async (req,res)=>{
-      const user =  req.body;
-      const result = await saveUsers.insertOne(user)
-      res.json(result)
-    })
-
+    app.post("/saveUsers", async (req, res) => {
+      const user = req.body;
+      const result = await saveUsers.insertOne(user);
+      res.json(result);
+    });
 
     // make admin
-    app.put("/madeAdmin", async (req,res)=>{
-      const filter = {email: req.body.email}
-      const result = await saveUsers.find(filter).toArray()
-      if(result){
-        const updateUser = await saveUsers.updateOne(filter,{
-          $set:{
-            role:"admin"
-          }
-        })
-        res.json(updateUser)
+    app.put("/madeAdmin", async (req, res) => {
+      const filter = { email: req.body.email };
+      const result = await saveUsers.find(filter).toArray();
+      if (result) {
+        const updateUser = await saveUsers.updateOne(filter, {
+          $set: {
+            role: "admin",
+          },
+        });
+        res.json(updateUser);
       }
-
-      
-    })
-
-
+    });
 
     // check admin
-    app.get("/checkAdmin/:email", async (req,res)=>{
-      const email = {email: req.params.email}
+    app.get("/checkAdmin/:email", async (req, res) => {
+      const email = { email: req.params.email };
       console.log(email);
-      const result = await saveUsers.find(email).toArray()
-      res.json(result)
+      const result = await saveUsers.find(email).toArray();
+      res.json(result);
+    });
+
+    // Create
+    app.post("/addCart", async (req,res)=>{
+      const query = req.body;
+      const result = await orderCart.insertOne(query)
+      res.send(result)
     })
 
-
-
-
-       // save cart info details
+    // save cart info details
     //    app.post('/cartSave', async (req, res) => {
     //       const query = req.body
-           
+
     //        if(query.quantity===0){
     //           result = await orderCart.insertOne(query)
     //        }
@@ -257,21 +252,10 @@ async function run() {
     //         const option = { upsert: true }
     //        result1 = await orderCart.updateOne(filter, updateDoc, option);
     //        }
-           
+
     //         res.json({result,result1});
-             
-     
-        
 
-        
     // })
-
-
-
-
-
-
-
   } finally {
     // await client.close();
   }
