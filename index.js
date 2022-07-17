@@ -3,12 +3,11 @@ const app = express();
 const ObjectId = require("mongodb").ObjectId;
 app.use(express.json());
 const cors = require("cors");
-const fileUpload = require("express-fileupload");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const port = process.env.PORT || 5000;
 app.use(cors());
 require("dotenv").config();
-app.use(fileUpload());
+
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.z45ex.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 
@@ -25,7 +24,7 @@ async function run() {
     const patients = database.collection("patients");
     const doctors = database.collection("doctors");
     const allProducts = database.collection("allProducts");
-    const orderCart = database.collection("orderCart");
+    const saveCart = database.collection("saveCart");
     const saveUsers = database.collection("saveUsers");
     console.log("connected database");
 
@@ -36,7 +35,7 @@ async function run() {
       res.send(result);
     });
 
-    // your bookings
+    // my bookings
     app.get("/yourBookings/:email", async (req, res) => {
       const query = { email: req.params.email };
       const result = await patients.find(query).toArray();
@@ -49,7 +48,7 @@ async function run() {
       res.send(result);
     });
 
-    // delete my serial
+    // delete my booking
     app.delete("/deleteMySerial/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -59,26 +58,9 @@ async function run() {
 
     // add  products
     app.post("/addProduct", async (req, res) => {
-      const name = req.body.name;
-      const rating = req.body.rating;
-      const price = req.body.price;
-      const discountPrice = req.body.discountPrice;
-      const discount = req.body.discount;
-      const description = req.body.description;
-      const picture = req.files.image;
-      const pictureData = picture.data;
-      const encodedPicture = pictureData.toString("base64");
-      const imageBuffer = Buffer.from(encodedPicture, "base64");
-      const product = {
-        name,
-        rating,
-        price,
-        discountPrice,
-        discount,
-        description,
-        image: imageBuffer,
-      };
-      const result = await allProducts.insertOne(product);
+      const query= req.body;
+     
+      const result = await allProducts.insertOne(query);
       res.send(result);
     });
 
@@ -191,7 +173,7 @@ async function run() {
     app.put("/updatePatient/:id", async (req, res) => {
       const id = req.params.id;
       const updateInfo = req.body;
-      console.log(updateInfo);
+      
       const query = { _id: ObjectId(id) };
       const result = await patients.updateOne(query, {
         $set: {
@@ -226,36 +208,64 @@ async function run() {
     // check admin
     app.get("/checkAdmin/:email", async (req, res) => {
       const email = { email: req.params.email };
-      console.log(email);
+      
       const result = await saveUsers.find(email).toArray();
       res.json(result);
     });
 
-    // Create
-    app.post("/addCart", async (req,res)=>{
-      const query = req.body;
-      const result = await orderCart.insertOne(query)
+   
+
+    // get cart
+    app.get("/getCart", async (req,res)=>{
+      const result = await saveCart.find({}).toArray();
+      res.send(result);
+      
+    })
+
+     // save cart
+     app.post("/saveCart", async (req,res)=>{
+      const query = req.body
+      const result = await saveCart.insertOne(query)
       res.send(result)
     })
 
-    // save cart info details
-    //    app.post('/cartSave', async (req, res) => {
-    //       const query = req.body
+    // pur cart
+    app.put("/updatePQty", async (req,res)=>{
+      const filter = {_id:req.body._id}
+      const result = await saveCart.find(filter).toArray();
 
-    //        if(query.quantity===0){
-    //           result = await orderCart.insertOne(query)
-    //        }
-    //        else  {
-    //         const filter = req.body.id
-    //         const increment= query.quantity + 1
-    //         const updateDoc = { $set: { quantity:increment.quantity } }
-    //         const option = { upsert: true }
-    //        result1 = await orderCart.updateOne(filter, updateDoc, option);
-    //        }
+      const upDoc = result[0].qty
+      if (result) {
+        const updateUser = await saveCart.updateOne(filter, {
+          $set: {
+            qty:upDoc +1
+          },
+        });
+        res.send(updateUser);
 
-    //         res.json({result,result1});
+      }
+    
+     
+      
+    })
 
-    // })
+
+    // app.put("/updatePQtys/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const updateInfo = req.body;
+    //   console.log(updateInfo);
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await saveCart.array.updateOne(query, {
+    //     $set: {
+    //       qty:qty+1,
+    //     },
+    //   });
+
+    //   res.send(result);
+    // });
+
+
+    
   } finally {
     // await client.close();
   }
