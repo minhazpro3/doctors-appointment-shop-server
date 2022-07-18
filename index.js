@@ -4,6 +4,7 @@ const ObjectId = require("mongodb").ObjectId;
 app.use(express.json());
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
+const { query } = require("express");
 const port = process.env.PORT || 5000;
 app.use(cors());
 require("dotenv").config();
@@ -35,6 +36,7 @@ async function run() {
       res.send(result);
     });
 
+
     // my bookings
     app.get("/yourBookings/:email", async (req, res) => {
       const query = { email: req.params.email };
@@ -42,13 +44,15 @@ async function run() {
       res.send(result);
     });
 
-    // get all bookings
+
+    // get all bookings for admin
     app.get("/allBookings", async (req, res) => {
       const result = await patients.find({}).toArray();
       res.send(result);
     });
 
-    // delete my booking
+
+    // cancel my booking
     app.delete("/deleteMySerial/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
@@ -56,26 +60,27 @@ async function run() {
       res.send(result);
     });
 
-    // add  products
+
+    // add  products for shop
     app.post("/addProduct", async (req, res) => {
       const query= req.body;
-     
       const result = await allProducts.insertOne(query);
       res.send(result);
     });
 
-    // get products
+
+    // get products for shop
     app.get("/getProductCart", async (req, res) => {
       const result = await allProducts.find({}).toArray();
       res.send(result);
     });
 
-    //  get product with pagination
+
+    //  get product for pagination
     app.get("/getProducts", async (req, res) => {
       const page = parseInt(req.query.page);
       const size = parseInt(req.query.size);
       const counts = await allProducts.count();
-
       if (page) {
         product = await allProducts
           .find({})
@@ -88,13 +93,16 @@ async function run() {
       res.send({ product, counts });
     });
 
+
     // find products
-    app.get("/findProduct/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: ObjectId(id) };
-      const result = await allProducts.findOne(query);
-      res.send(result);
-    });
+    // app.get("/findProduct/:id", async (req, res) => {
+    //   const id = req.params.id;
+    //   const query = { _id: ObjectId(id) };
+    //   const result = await allProducts.findOne(query);
+    //   res.send(result);
+    // });
+
+
 
     //  update Product
     app.put("/updateProduct/:id", async (req, res) => {
@@ -112,9 +120,9 @@ async function run() {
           rating: updateInfo.rating,
         },
       });
-
       res.send(result);
     });
+
 
     // delete products
     app.delete("/deleteProduct/:id", async (req, res) => {
@@ -125,7 +133,8 @@ async function run() {
       res.send(result);
     });
 
-    // add a new doctor
+
+    // add  new doctor
     app.post("/addDoctor", async (req, res) => {
       const name = req.body.name;
       const email = req.body.email;
@@ -147,11 +156,13 @@ async function run() {
       res.send(result);
     });
 
-    // get doctors
+
+    // get all doctors
     app.get("/getDoctors", async (req, res) => {
       const result = await doctors.find({}).toArray();
       res.send(result);
     });
+
 
     // get single doctor
     app.get("/singleDoctor/:id", async (req, res) => {
@@ -161,6 +172,7 @@ async function run() {
       res.send(result);
     });
 
+
     // delete patient
     app.delete("/deletePatient/:id", async (req, res) => {
       const id = req.params.id;
@@ -169,7 +181,8 @@ async function run() {
       res.send(result);
     });
 
-    //  update happy patients
+
+    //  update patients status
     app.put("/updatePatient/:id", async (req, res) => {
       const id = req.params.id;
       const updateInfo = req.body;
@@ -180,9 +193,9 @@ async function run() {
           status: updateInfo.status,
         },
       });
-
       res.send(result);
     });
+
 
     // save users
     app.post("/saveUsers", async (req, res) => {
@@ -190,6 +203,7 @@ async function run() {
       const result = await saveUsers.insertOne(user);
       res.json(result);
     });
+
 
     // make admin
     app.put("/madeAdmin", async (req, res) => {
@@ -205,10 +219,10 @@ async function run() {
       }
     });
 
+
     // check admin
     app.get("/checkAdmin/:email", async (req, res) => {
       const email = { email: req.params.email };
-      
       const result = await saveUsers.find(email).toArray();
       res.json(result);
     });
@@ -216,11 +230,11 @@ async function run() {
    
 
     // get cart
-    app.get("/getCart", async (req,res)=>{
+      app.get("/getCart", async (req,res)=>{
       const result = await saveCart.find({}).toArray();
       res.send(result);
-      
     })
+
 
      // save cart
      app.post("/saveCart", async (req,res)=>{
@@ -229,43 +243,41 @@ async function run() {
       res.send(result)
     })
 
-    // pur cart
+
+    // update cart
     app.put("/updatePQty", async (req,res)=>{
       const filter = {_id:req.body._id}
+      const check = req.body.type
       const result = await saveCart.find(filter).toArray();
-
       const upDoc = result[0].qty
-      if (result) {
+      if (result&&!check) {
         const updateUser = await saveCart.updateOne(filter, {
           $set: {
             qty:upDoc +1
           },
         });
         res.send(updateUser);
-
       }
-    
-     
-      
+      else if(check==="Dec"){
+        const updateUser = await saveCart.updateOne(filter, {
+          $set: {
+            qty:upDoc -1
+          },
+        });
+        res.send(updateUser);
+      } 
     })
 
 
-    // app.put("/updatePQtys/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const updateInfo = req.body;
-    //   console.log(updateInfo);
-    //   const query = { _id: ObjectId(id) };
-    //   const result = await saveCart.array.updateOne(query, {
-    //     $set: {
-    //       qty:qty+1,
-    //     },
-    //   });
-
-    //   res.send(result);
-    // });
+    // cancel order
+    app.delete("/deleteProd/:id", async (req,res)=>{
+      const id = req.params.id;
+      const query = {_id:id};
+      const result = await saveCart.deleteOne(query)
+      res.json(result)
+    })
 
 
-    
   } finally {
     // await client.close();
   }
