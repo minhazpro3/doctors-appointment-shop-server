@@ -230,13 +230,14 @@ async function run() {
    
 
     // get cart
-      app.get("/getCart", async (req,res)=>{
-      const result = await saveCart.find({}).toArray();
-      res.send(result);
+      app.get("/getCart/:email", async (req,res)=>{
+        const email = { email: req.params.email };
+        const result = await saveCart.find(email).toArray();
+        res.json(result);
     })
 
 
-     // save cart
+    //  save cart
      app.post("/saveCart", async (req,res)=>{
       const query = req.body
       const result = await saveCart.insertOne(query)
