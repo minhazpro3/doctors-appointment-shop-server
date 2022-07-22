@@ -259,7 +259,7 @@ async function run() {
         });
         res.send(updateUser);
       }
-      else if(check==="Dec"){
+      else if(check==="Dec") {
         const updateUser = await saveCart.updateOne(filter, {
           $set: {
             qty:upDoc -1
