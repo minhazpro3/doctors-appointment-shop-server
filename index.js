@@ -276,6 +276,7 @@ async function run() {
       const query = {_id:id};
       const result = await saveCart.deleteOne(query)
       res.json(result)
+      
     })
 
 
