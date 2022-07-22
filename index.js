@@ -270,13 +270,13 @@ async function run() {
     })
 
 
-    // cancel order
+    // cancel  order
     app.delete("/deleteProd/:id", async (req,res)=>{
       const id = req.params.id;
       const query = {_id:id};
       const result = await saveCart.deleteOne(query)
       res.json(result)
-      
+
     })
 
 
