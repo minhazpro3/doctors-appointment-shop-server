@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const stripe = require("stripe")("sk_test_51Jw7VaH3ev5JLZVRhTwDATUMywwLp3A0UEVcRscmayn5E6359TSt8AD05IprzzAcCzviV10jZ0p9488Db1QF5q3F00W4qtWJjG")
+const body_parser = require("body-parser")
 const ObjectId = require("mongodb").ObjectId;
 app.use(express.json());
 const cors = require("cors");
@@ -7,6 +9,8 @@ app.use(cors());
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const port = process.env.PORT || 5000;
 app.use(cors());
+app.use(body_parser.urlencoded({ extended: true }))
+app.use(body_parser.json())
 require("dotenv").config();
 
 
@@ -28,6 +32,42 @@ async function run() {
     const saveCart = database.collection("saveCart");
     const saveUsers = database.collection("saveUsers");
     console.log("connected database");
+
+
+    
+    app.post('/payment',  async (req, res) => {
+      
+      let query = req.body;
+      const price = parseFloat(query.amount.totalPrice)*100
+      const id = query.id
+      
+
+      try {
+        const payment = await stripe.paymentIntents.create({
+          amount:price,
+          currency: "USD",
+          description: "amar company",
+          payment_method: id,
+          confirm:true
+        })
+        res.json({
+          message: "payment successfully paid",
+          success:true
+        })
+      } catch (error) {
+      
+        res.json({
+          message: "payment failed",
+          success:false
+        })
+      }
+ 
+    })
+
+   
+
+
+
 
     // post patients collections
     app.post("/postAllPatients", async (req, res) => {
