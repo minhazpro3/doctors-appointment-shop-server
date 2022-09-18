@@ -134,14 +134,7 @@ async function run() {
     });
 
 
-    // find products
-    // app.get("/findProduct/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: ObjectId(id) };
-    //   const result = await allProducts.findOne(query);
-    //   res.send(result);
-    // });
-
+    
 
 
     //  update Product
@@ -318,6 +311,13 @@ async function run() {
       const result = await saveCart.deleteOne(query)
       res.json(result)
 
+    })
+
+
+    app.delete("/deleteMany", async (req, res) => {
+      const result = await saveCart.deleteMany({ "type": "product" })
+      res.send(result)
+      
     })
 
 
