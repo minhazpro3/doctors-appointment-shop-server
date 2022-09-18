@@ -314,7 +314,7 @@ async function run() {
     })
 
 
-    app.delete("/deleteMany", async (req, res) => {
+    app.delete("/deleteManyA", async (req, res) => {
       const result = await saveCart.deleteMany({ "type": "product" })
       res.send(result)
       
