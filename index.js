@@ -303,7 +303,7 @@ async function run() {
     })
 
 
-    // cancel order
+    // cancel orders
     app.delete("/deleteProd/:id", async (req,res)=>{
       const id = req.params.id;
       
