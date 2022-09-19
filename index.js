@@ -64,10 +64,6 @@ async function run() {
  
     })
 
-   
-
-
-
 
     // post patients collections
     app.post("/postAllPatients", async (req, res) => {
@@ -132,9 +128,6 @@ async function run() {
       }
       res.send({ product, counts });
     });
-
-
-    
 
 
     //  update Product
@@ -312,7 +305,6 @@ async function run() {
       res.json(result)
 
     })
-
 
     app.delete("/deleteManyA", async (req, res) => {
       const result = await saveCart.deleteMany({ "type": "product" })
